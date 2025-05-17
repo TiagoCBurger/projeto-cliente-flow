@@ -1,15 +1,10 @@
-
 import React from "react";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ProjectHeader from "../components/dashboard/ProjectHeader";
 import ProjectStats from "../components/dashboard/ProjectStats";
-import KanbanBoard from "../components/dashboard/KanbanBoard";
 import MeetingSchedule from "../components/dashboard/MeetingSchedule";
 import ProjectProgress from "../components/dashboard/ProjectProgress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Index = () => {
   const isMobile = useIsMobile();
@@ -17,7 +12,6 @@ const Index = () => {
   return (
     <DashboardLayout>
       <div className="mb-6 flex items-center justify-between">
-        {isMobile && <SidebarTrigger />}
         <div>
           <h2 className="text-xl font-semibold">Painel do Cliente</h2>
           <p className="text-sm text-muted-foreground">
@@ -27,53 +21,28 @@ const Index = () => {
         {isMobile && <div className="w-9" />} {/* Spacer for layout balance */}
       </div>
 
-      <Tabs defaultValue="website-redesign" className="mb-6">
-        <TabsList>
-          <TabsTrigger value="website-redesign">Redesign do Site</TabsTrigger>
-          <TabsTrigger value="app-development">App Mobile</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="website-redesign">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <div className="lg:col-span-2">
-              <ProjectHeader 
-                title="Redesign do Site Corporativo" 
-                client="ABC Tecnologia" 
-                progress={65} 
-              />
-              
-              <ProjectStats 
-                startDate="01/05/2025"
-                endDate="30/06/2025"
-                budget="R$ 28.500,00"
-                daysRemaining={14}
-              />
-              
-              <ProjectProgress />
-            </div>
-            
-            <div className="lg:col-span-1">
-              <MeetingSchedule />
-            </div>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2">
+          <ProjectHeader 
+            title="Redesign do Site Corporativo" 
+            client="ABC Tecnologia" 
+            progress={65} 
+          />
           
-          <Separator className="my-6" />
+          <ProjectStats 
+            startDate="01/05/2025"
+            endDate="30/06/2025"
+            budget="R$ 28.500,00"
+            daysRemaining={14}
+          />
           
-          <KanbanBoard />
-        </TabsContent>
+          <ProjectProgress />
+        </div>
         
-        <TabsContent value="app-development">
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <h3 className="text-xl font-semibold mb-2">Projeto App Mobile</h3>
-            <p className="text-muted-foreground mb-4">
-              Este projeto ainda não foi iniciado.
-            </p>
-            <p className="text-sm">
-              Data prevista para início: 01/07/2025
-            </p>
-          </div>
-        </TabsContent>
-      </Tabs>
+        <div className="lg:col-span-1">
+          <MeetingSchedule />
+        </div>
+      </div>
     </DashboardLayout>
   );
 };

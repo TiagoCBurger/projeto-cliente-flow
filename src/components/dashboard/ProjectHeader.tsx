@@ -1,9 +1,8 @@
-
 import React from "react";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { Bell, FileText } from "lucide-react";
+import { Bell } from "lucide-react";
 
 interface ProjectHeaderProps {
   title: string;
@@ -25,13 +24,6 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
     });
   };
 
-  const handleDownloadReport = () => {
-    toast({
-      title: "Relatório gerado",
-      description: "O relatório do projeto foi baixado com sucesso.",
-    });
-  };
-
   return (
     <div className="mb-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between">
@@ -49,16 +41,6 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
           >
             <Bell className="h-4 w-4" />
             <span className="hidden sm:inline">Ativar Notificações</span>
-          </Button>
-          
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            onClick={handleDownloadReport}
-            className="flex items-center gap-2"
-          >
-            <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Relatório</span>
           </Button>
         </div>
       </div>
