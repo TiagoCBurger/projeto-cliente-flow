@@ -18,7 +18,12 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  TooltipProps,
 } from "recharts";
+
+// Adding specific type imports for Tooltip
+type ValueType = string | number | Array<string | number>;
+type NameType = string | number;
 
 const ProjectProgress = () => {
   // Dados de exemplo para o gráfico
@@ -38,6 +43,11 @@ const ProjectProgress = () => {
   };
 
   const overallProgress = calculateOverallProgress();
+
+  // Custom tooltip component that satisfies recharts type requirements
+  const CustomTooltip = (props: TooltipProps<ValueType, NameType>) => {
+    return <ChartTooltipContent {...props} formatter={(value) => <span>{value}%</span>} />;
+  };
 
   return (
     <div className="space-y-6 mb-8">
@@ -71,11 +81,7 @@ const ProjectProgress = () => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip content={(props) => (
-                  <ChartTooltipContent {...props} formatter={(value, name) => (
-                    <span>{value}%</span>
-                  )} />
-                )} />
+                <Tooltip content={<CustomTooltip />} />
                 <Legend content={<ChartLegendContent />} />
                 <Bar dataKey="concluído" name="progresso" fill="hsl(var(--primary))" />
                 <Bar 
