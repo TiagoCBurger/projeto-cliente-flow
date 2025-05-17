@@ -1,9 +1,9 @@
-
 import React, { useState } from "react";
 import TaskCard from "./TaskCard";
 import CommentSection from "./CommentSection";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ChecklistItem {
   id: string;
