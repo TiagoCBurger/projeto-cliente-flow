@@ -63,39 +63,53 @@ const MeetingSchedule: React.FC = () => {
     }
   };
 
+  // Ordenar reuniões por data
+  const sortedMeetings = [...meetings].sort((a, b) => {
+    const dateA = new Date(`${a.date.split('/').reverse().join('-')}T${a.time}`);
+    const dateB = new Date(`${b.date.split('/').reverse().join('-')}T${b.time}`);
+    return dateA.getTime() - dateB.getTime();
+  });
+
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle className="text-lg">Próximos Encontros</CardTitle>
+        <CardTitle className="text-lg flex items-center">
+          <Calendar className="h-5 w-5 mr-2 text-primary" />
+          Próximos Encontros
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        {meetings.length === 0 ? (
+        {sortedMeetings.length === 0 ? (
           <p className="text-sm text-center text-muted-foreground py-6">
             Nenhuma reunião agendada
           </p>
         ) : (
           <div className="space-y-4">
-            {meetings.map((meeting) => (
+            {sortedMeetings.map((meeting) => (
               <div 
                 key={meeting.id} 
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-md"
+                className="flex flex-col p-4 border rounded-md transition-all hover:shadow-md hover:border-primary/30"
               >
-                <div className="mb-2 sm:mb-0">
+                <div className="flex justify-between items-start mb-2">
                   <p className="font-medium">{meeting.title}</p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                    <Calendar className="h-3 w-3" />
+                  <Badge 
+                    variant="outline" 
+                    className={getBadgeVariant(meeting.type)}
+                  >
+                    {getTypeLabel(meeting.type)}
+                  </Badge>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
+                  <div className="flex items-center">
+                    <Calendar className="h-3.5 w-3.5 mr-1.5" />
                     <span>{meeting.date}</span>
-                    <Clock className="h-3 w-3 ml-2" />
+                  </div>
+                  <div className="flex items-center">
+                    <Clock className="h-3.5 w-3.5 mr-1.5" />
                     <span>{meeting.time} ({meeting.durationMinutes} min)</span>
                   </div>
                 </div>
-                
-                <Badge 
-                  variant="outline" 
-                  className={`mt-2 sm:mt-0 ${getBadgeVariant(meeting.type)}`}
-                >
-                  {getTypeLabel(meeting.type)}
-                </Badge>
               </div>
             ))}
           </div>

@@ -5,6 +5,7 @@ import ProjectHeader from "../components/dashboard/ProjectHeader";
 import ProjectStats from "../components/dashboard/ProjectStats";
 import KanbanBoard from "../components/dashboard/KanbanBoard";
 import MeetingSchedule from "../components/dashboard/MeetingSchedule";
+import ProjectProgress from "../components/dashboard/ProjectProgress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -33,24 +34,32 @@ const Index = () => {
         </TabsList>
         
         <TabsContent value="website-redesign">
-          <ProjectHeader 
-            title="Redesign do Site Corporativo" 
-            client="ABC Tecnologia" 
-            progress={65} 
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="lg:col-span-2">
+              <ProjectHeader 
+                title="Redesign do Site Corporativo" 
+                client="ABC Tecnologia" 
+                progress={65} 
+              />
+              
+              <ProjectStats 
+                startDate="01/05/2025"
+                endDate="30/06/2025"
+                budget="R$ 28.500,00"
+                daysRemaining={14}
+              />
+              
+              <ProjectProgress />
+            </div>
+            
+            <div className="lg:col-span-1">
+              <MeetingSchedule />
+            </div>
+          </div>
           
-          <ProjectStats 
-            startDate="01/05/2025"
-            endDate="30/06/2025"
-            budget="R$ 28.500,00"
-            daysRemaining={14}
-          />
+          <Separator className="my-6" />
           
           <KanbanBoard />
-          
-          <Separator className="my-8" />
-          
-          <MeetingSchedule />
         </TabsContent>
         
         <TabsContent value="app-development">
