@@ -44,9 +44,22 @@ const ProjectProgress = () => {
 
   const overallProgress = calculateOverallProgress();
 
-  // Custom tooltip component that satisfies recharts type requirements
-  const CustomTooltip = (props: TooltipProps<ValueType, NameType>) => {
-    return <ChartTooltipContent {...props} formatter={(value) => <span>{value}%</span>} />;
+  // Fix for the CustomTooltip component - correctly implementing the TooltipProps interface
+  // We need to return a function instead of a JSX element directly
+  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip bg-background border border-border/50 rounded-md p-2 shadow-md">
+          <p className="font-medium">{label}</p>
+          {payload.map((entry) => (
+            <p key={entry.name} className="text-sm">
+              {entry.name}: {entry.value}%
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
