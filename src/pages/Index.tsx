@@ -5,9 +5,12 @@ import ProjectStats from "../components/dashboard/ProjectStats";
 import MeetingSchedule from "../components/dashboard/MeetingSchedule";
 import ProjectProgress from "../components/dashboard/ProjectProgress";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ProjectSettings from "@/components/ProjectSettings";
+import { useClickUpProject } from "@/hooks/use-clickup-project";
 
 const Index = () => {
   const isMobile = useIsMobile();
+  const { project } = useClickUpProject();
 
   return (
     <DashboardLayout>
@@ -18,22 +21,22 @@ const Index = () => {
             Acompanhe o andamento do seu projeto
           </p>
         </div>
-        {isMobile && <div className="w-9" />} {/* Spacer for layout balance */}
+        <ProjectSettings variant="icon" size="sm" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="lg:col-span-2">
           <ProjectHeader 
-            title="Redesign do Site Corporativo" 
-            client="ABC Tecnologia" 
-            progress={65} 
+            title={project?.title || "Redesign do Site Corporativo"}
+            client={project?.client || "ABC Tecnologia"} 
+            progress={project?.progress || 65} 
           />
           
           <ProjectStats 
-            startDate="01/05/2025"
-            endDate="30/06/2025"
-            budget="R$ 28.500,00"
-            daysRemaining={14}
+            startDate={project?.startDate || "01/05/2025"}
+            endDate={project?.endDate || "30/06/2025"}
+            budget={project?.budget || "R$ 28.500,00"}
+            daysRemaining={project?.daysRemaining || 14}
           />
           
           <ProjectProgress />

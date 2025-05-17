@@ -71,3 +71,43 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+# Integração com ClickUp
+
+Este projeto agora inclui uma integração com o ClickUp que permite sincronizar as etapas do projeto diretamente do seu quadro Kanban.
+
+## Configuração
+
+1. Crie uma chave de API no ClickUp:
+   - Acesse suas configurações de perfil no ClickUp
+   - Vá para "Apps" e crie uma chave de API
+
+2. Configure as variáveis de ambiente:
+   - Copie o arquivo `.env.example` para `.env.local`
+   - Preencha os valores necessários:
+     - `VITE_CLICKUP_API_KEY`: Sua chave de API do ClickUp
+     - `VITE_CLICKUP_TEAM_ID`: O ID do seu time (encontrado na URL)
+     - `VITE_CLICKUP_SPACE_ID`: O ID do espaço de trabalho
+     - `VITE_CLICKUP_LIST_ID`: O ID da lista ou quadro Kanban
+
+3. Ou configure diretamente na interface:
+   - Use o botão de configurações no painel para inserir os IDs necessários
+
+## Como a integração funciona
+
+1. O sistema busca as tarefas do ClickUp em intervalos regulares
+2. Uma IA interpreta os dados para criar:
+   - Checkpoints do projeto com status e progresso
+   - Subtarefas baseadas nos checklists do ClickUp
+   - Comentários associados a cada tarefa
+
+3. As informações são exibidas no painel do cliente de forma organizada e visual
+
+## Estrutura do quadro Kanban no ClickUp
+
+Para obter os melhores resultados, estruture seu quadro Kanban no ClickUp com:
+
+- Uma lista para cada fase principal do projeto
+- Checklists dentro de cada tarefa para subtarefas
+- Campos personalizados para datas de início e término
+- Status claros que indiquem o progresso (Concluído, Em Andamento, Pendente)
