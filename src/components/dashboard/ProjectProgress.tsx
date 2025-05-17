@@ -14,21 +14,46 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import CommentSection from "./CommentSection";
-import { useClickUpProject } from "@/hooks/use-clickup-project";
-import { Checkpoint } from "@/types/project";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useClickUpData, ProjectStage } from "@/lib/fetchClickUpData";
+import { useToast } from "@/components/ui/use-toast";
 
 const ProjectProgress = () => {
-  const { project, loading, error, refreshProject } = useClickUpProject();
-  const [selectedCheckpoint, setSelectedCheckpoint] = useState<Checkpoint | null>(null);
+  const { data, loading, error, refreshData } = useClickUpData();
+  const [selectedCheckpoint, setSelectedCheckpoint] = useState<ProjectStage | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { toast } = useToast();
 
-  // Calcular o progresso geral do projeto
-  const overallProgress = project?.progress || 0;
+  // Usar dados vindos do ClickUp ou fallback para dados locais quando não disponíveis
+  const checkpoints = data?.projectStages || [];
 
-  const openCheckpointDetails = (checkpoint: Checkpoint) => {
+  // Calcular o progresso geral do projeto com base nos checkpoints
+  const calculateOverallProgress = () => {
+    if (checkpoints.length === 0) return 0;
+    const totalProgress = checkpoints.reduce((acc, checkpoint) => acc + checkpoint.progress, 0);
+    return Math.round(totalProgress / checkpoints.length);
+  };
+
+  const overallProgress = calculateOverallProgress();
+
+  const openCheckpointDetails = (checkpoint: ProjectStage) => {
     setSelectedCheckpoint(checkpoint);
     setIsModalOpen(true);
+  };
+
+  const handleRefreshData = async () => {
+    const success = await refreshData();
+    if (success) {
+      toast({
+        title: "Dados atualizados",
+        description: "Informações do projeto foram atualizadas com sucesso.",
+      });
+    } else {
+      toast({
+        title: "Erro na atualização",
+        description: "Não foi possível atualizar as informações. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusIcon = (status: string) => {
@@ -53,23 +78,17 @@ const ProjectProgress = () => {
     }
   };
 
-  // Renderizar um estado de carregamento
-  if (loading && !project) {
+  if (loading) {
     return (
       <div className="space-y-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-lg">Progresso do Projeto</CardTitle>
-            <Skeleton className="h-4 w-16" />
+            <div className="text-sm text-muted-foreground">Carregando...</div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium">Etapas do Projeto</h3>
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
             </div>
           </CardContent>
         </Card>
@@ -77,47 +96,59 @@ const ProjectProgress = () => {
     );
   }
 
-  // Renderizar um erro
-  if (error && !project) {
+  if (error) {
     return (
       <div className="space-y-6 mb-8">
-        <Card className="border-red-200">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-lg">Erro ao Carregar Dados</CardTitle>
-            <Button size="sm" variant="outline" onClick={() => refreshProject(true)}>
+            <CardTitle className="text-lg">Progresso do Projeto</CardTitle>
+            <Button size="sm" variant="outline" onClick={handleRefreshData}>
               <RefreshCw className="h-4 w-4 mr-2" />
-              Tentar Novamente
+              Tentar novamente
             </Button>
           </CardHeader>
           <CardContent>
-            <p className="text-red-500">{error}</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Verifique suas configurações do ClickUp ou tente novamente mais tarde.
-            </p>
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">Não foi possível carregar as informações do projeto.</p>
+              <p className="text-sm">Verifique sua conexão e tente novamente.</p>
+            </div>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Dados de exemplo para fallback quando não há conexão com ClickUp
-  const checkpoints = project?.checkpoints || [];
+  if (checkpoints.length === 0) {
+    return (
+      <div className="space-y-6 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-lg">Progresso do Projeto</CardTitle>
+            <Button size="sm" variant="outline" onClick={handleRefreshData}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Atualizar
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">Nenhuma etapa encontrada para este projeto.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 mb-8">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-lg">Progresso do Projeto</CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <div className="text-sm text-muted-foreground">
               {overallProgress}% concluído
             </div>
-            <Button 
-              size="icon" 
-              variant="ghost" 
-              onClick={() => refreshProject(true)}
-              title="Atualizar dados do ClickUp"
-            >
+            <Button size="sm" variant="outline" onClick={handleRefreshData} className="h-8 px-2">
               <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
@@ -126,41 +157,35 @@ const ProjectProgress = () => {
           <div className="space-y-4">
             <h3 className="text-sm font-medium">Etapas do Projeto</h3>
             
-            {checkpoints.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Nenhuma etapa encontrada. Configure a integração com o ClickUp.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {checkpoints.map((checkpoint) => (
-                  <div 
-                    key={checkpoint.id}
-                    className="flex items-center p-3 rounded-lg border hover:bg-muted cursor-pointer transition-colors"
-                    onClick={() => openCheckpointDetails(checkpoint)}
-                  >
-                    <div className="mr-3">
-                      {getStatusIcon(checkpoint.status)}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <div className="flex justify-between items-center mb-1">
-                        <h4 className="font-medium">{checkpoint.name}</h4>
-                        {getStatusBadge(checkpoint.status)}
-                      </div>
-                      
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Calendar className="h-3.5 w-3.5 mr-1" />
-                        <span>
-                          {checkpoint.startDate} - {checkpoint.endDate}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            <div className="space-y-3">
+              {checkpoints.map((checkpoint) => (
+                <div 
+                  key={checkpoint.id}
+                  className="flex items-center p-3 rounded-lg border hover:bg-muted cursor-pointer transition-colors"
+                  onClick={() => openCheckpointDetails(checkpoint)}
+                >
+                  <div className="mr-3">
+                    {getStatusIcon(checkpoint.status)}
                   </div>
-                ))}
-              </div>
-            )}
+                  
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <h4 className="font-medium">{checkpoint.name}</h4>
+                      {getStatusBadge(checkpoint.status)}
+                    </div>
+                    
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <Calendar className="h-3.5 w-3.5 mr-1" />
+                      <span>
+                        {checkpoint.startDate} - {checkpoint.endDate}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -198,29 +223,23 @@ const ProjectProgress = () => {
                 <div>
                   <h4 className="text-sm font-medium mb-2">Subtarefas</h4>
                   <div className="space-y-2 rounded-md p-3">
-                    {selectedCheckpoint.subtasks.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-2">
-                        Sem subtarefas disponíveis
-                      </p>
-                    ) : (
-                      selectedCheckpoint.subtasks.map((subtask) => (
-                        <div key={subtask.id} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {subtask.completed ? (
-                              <CheckSquare className="h-4 w-4 text-green-500" />
-                            ) : (
-                              <Square className="h-4 w-4 text-muted-foreground" />
-                            )}
-                            <span className={`text-sm ${subtask.completed ? "line-through text-muted-foreground" : ""}`}>
-                              {subtask.title}
-                            </span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">
-                            {subtask.dueDate}
+                    {selectedCheckpoint.subtasks.map((subtask) => (
+                      <div key={subtask.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {subtask.completed ? (
+                            <CheckSquare className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <Square className="h-4 w-4 text-muted-foreground" />
+                          )}
+                          <span className={`text-sm ${subtask.completed ? "line-through text-muted-foreground" : ""}`}>
+                            {subtask.title}
                           </span>
                         </div>
-                      ))
-                    )}
+                        <span className="text-xs text-muted-foreground">
+                          {subtask.dueDate}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
                 
