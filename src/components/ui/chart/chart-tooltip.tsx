@@ -10,13 +10,21 @@ const ChartTooltip = RechartsPrimitive.Tooltip
 type ValueType = string | number | Array<string | number>
 type NameType = string | number
 
-interface ChartTooltipContentProps extends React.ComponentProps<"div">, 
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> {
+// Redefine interface to avoid content property conflict
+interface ChartTooltipContentProps extends Omit<React.ComponentProps<"div">, 'content'> {
+  // Add Tooltip props we need, but omit 'content' to avoid conflict
+  active?: boolean
+  payload?: Array<any>
+  label?: any
+  labelFormatter?: (label: any, payload: Array<any>) => React.ReactNode
+  formatter?: (value: ValueType, name: NameType, props: any, index: number, payload: any) => React.ReactNode
   hideLabel?: boolean
   hideIndicator?: boolean
   indicator?: "line" | "dot" | "dashed"
   nameKey?: string
   labelKey?: string
+  labelClassName?: string
+  color?: string
 }
 
 const ChartTooltipContent = React.forwardRef<
@@ -164,6 +172,6 @@ const ChartTooltipContent = React.forwardRef<
     )
   }
 )
-ChartTooltipContent.displayName = "ChartTooltip"
+ChartTooltipContent.displayName = "ChartTooltipContent"
 
 export { ChartTooltip, ChartTooltipContent }
